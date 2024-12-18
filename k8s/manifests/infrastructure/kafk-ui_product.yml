@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-ui-product
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-ui-product
+  template:
+    metadata:
+      labels:
+        app: kafka-ui-product
+    spec:
+      containers:
+        - name: kafka-ui-product
+          image: provectuslabs/kafka-ui:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KAFKA_CLUSTERS_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: KAFKA_CLUSTERS_NAME
+                  name: kafka-ui-product-config
+            - name: KAFKA_CLUSTERS_BOOTSTRAPSERVERS
+              valueFrom:
+                configMapKeyRef:
+                  key: KAFKA_CLUSTERS_BOOTSTRAPSERVERS
+                  name: kafka-ui-product-config
+            - name: DYNAMIC_CONFIG_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  key: DYNAMIC_CONFIG_ENABLED
+                  name: kafka-ui-product-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-ui-product
+spec:
+  selector:
+    app: kafka-ui-product
+  ports:
+    - protocol: TCP
+      port: 8087
+      targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-ui-product-config
+data:
+  KAFKA_CLUSTERS_NAME: "local"
+  KAFKA_CLUSTERS_BOOTSTRAPSERVERS: "broker-product:29093"
+  DYNAMIC_CONFIG_ENABLED: "true"

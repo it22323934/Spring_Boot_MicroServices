@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+        - name: product-service
+          image: asirijayawardena920/product-service:latest
+          env:
+            - name: SPRING_DATA_MONGODB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: product-service-config
+                  key: SPRING_DATA_MONGODB_URI
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: product-service-config
+                  key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+            - name: SPRING_KAFKA_TEMPLATE_DEFAULT_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: product-service-config
+                  key: SPRING_KAFKA_TEMPLATE_DEFAULT_TOPIC
+            - name: LOKI_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: product-service-config
+                  key: LOKI_URL
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: product-service-config
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+          ports:
+            - containerPort: 8080
